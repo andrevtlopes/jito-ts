@@ -91,6 +91,7 @@ export interface PendingTxNotification {
 }
 
 export interface NextScheduledLeaderRequest {
+  regions?: string[];
 }
 
 export interface NextScheduledLeaderResponse {
@@ -99,6 +100,7 @@ export interface NextScheduledLeaderResponse {
   /** the slot and identity of the next leader */
   nextLeaderSlot: number;
   nextLeaderIdentity: string;
+  nextLeaderRegion: string;
 }
 
 export interface ConnectedLeadersRequest {
@@ -785,7 +787,12 @@ function createBaseNextScheduledLeaderRequest(): NextScheduledLeaderRequest {
 }
 
 export const NextScheduledLeaderRequest = {
-  encode(_: NextScheduledLeaderRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(message: NextScheduledLeaderRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.regions) {
+      for (const region of message.regions) {
+        writer.uint32(10).string(region);
+      }
+    }
     return writer;
   },
 
@@ -796,6 +803,12 @@ export const NextScheduledLeaderRequest = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1:
+          if (message.regions === undefined) {
+            message.regions = [];
+          }
+          message.regions.push(reader.string());
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -804,12 +817,17 @@ export const NextScheduledLeaderRequest = {
     return message;
   },
 
-  fromJSON(_: any): NextScheduledLeaderRequest {
-    return {};
+  fromJSON(object: any): NextScheduledLeaderRequest {
+    return { regions: Array.isArray(object?.regions) ? object.regions.map((e: any) => String(e)) : [] };
   },
 
-  toJSON(_: NextScheduledLeaderRequest): unknown {
+  toJSON(message: NextScheduledLeaderRequest): unknown {
     const obj: any = {};
+    if (message.regions) {
+      obj.regions = message.regions.map((e) => e);
+    } else {
+      obj.regions = [];
+    }
     return obj;
   },
 
@@ -817,8 +835,9 @@ export const NextScheduledLeaderRequest = {
     return NextScheduledLeaderRequest.fromPartial(base ?? {});
   },
 
-  fromPartial<I extends Exact<DeepPartial<NextScheduledLeaderRequest>, I>>(_: I): NextScheduledLeaderRequest {
+  fromPartial<I extends Exact<DeepPartial<NextScheduledLeaderRequest>, I>>(object: I): NextScheduledLeaderRequest {
     const message = createBaseNextScheduledLeaderRequest();
+    message.regions = object.regions?.map((e) => e) || [];
     return message;
   },
 };
@@ -837,6 +856,9 @@ export const NextScheduledLeaderResponse = {
     }
     if (message.nextLeaderIdentity !== "") {
       writer.uint32(26).string(message.nextLeaderIdentity);
+    }
+    if (message.nextLeaderRegion !== "") {
+      writer.uint32(26).string(message.nextLeaderRegion);
     }
     return writer;
   },
@@ -857,6 +879,9 @@ export const NextScheduledLeaderResponse = {
         case 3:
           message.nextLeaderIdentity = reader.string();
           break;
+        case 4:
+          message.nextLeaderRegion = reader.string();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -870,6 +895,7 @@ export const NextScheduledLeaderResponse = {
       currentSlot: isSet(object.currentSlot) ? Number(object.currentSlot) : 0,
       nextLeaderSlot: isSet(object.nextLeaderSlot) ? Number(object.nextLeaderSlot) : 0,
       nextLeaderIdentity: isSet(object.nextLeaderIdentity) ? String(object.nextLeaderIdentity) : "",
+      nextLeaderRegion: isSet(object.nextLeaderRegion) ? String(object.nextLeaderRegion) : "",
     };
   },
 
@@ -878,6 +904,7 @@ export const NextScheduledLeaderResponse = {
     message.currentSlot !== undefined && (obj.currentSlot = Math.round(message.currentSlot));
     message.nextLeaderSlot !== undefined && (obj.nextLeaderSlot = Math.round(message.nextLeaderSlot));
     message.nextLeaderIdentity !== undefined && (obj.nextLeaderIdentity = message.nextLeaderIdentity);
+    message.nextLeaderRegion !== undefined && (obj.nextLeaderRegion = message.nextLeaderRegion);
     return obj;
   },
 
@@ -890,6 +917,7 @@ export const NextScheduledLeaderResponse = {
     message.currentSlot = object.currentSlot ?? 0;
     message.nextLeaderSlot = object.nextLeaderSlot ?? 0;
     message.nextLeaderIdentity = object.nextLeaderIdentity ?? "";
+    message.nextLeaderRegion = object.nextLeaderRegion ?? "";
     return message;
   },
 };

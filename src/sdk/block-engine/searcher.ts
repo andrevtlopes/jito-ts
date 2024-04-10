@@ -11,6 +11,7 @@ import {BundleResult} from '../../gen/block-engine/bundle';
 import {
   ConnectedLeadersResponse,
   GetTipAccountsResponse,
+  NextScheduledLeaderRequest,
   NextScheduledLeaderResponse,
   PendingTxNotification,
   SearcherServiceClient,
@@ -104,14 +105,15 @@ export class SearcherClient {
    *        - nextLeaderIdentity: The identity of the next scheduled leader
    * @throws A ServiceError if there's an issue with the server while fetching the next scheduled leader.
    */
-  async getNextScheduledLeader(): Promise<{
+  async getNextScheduledLeader(request: NextScheduledLeaderRequest): Promise<{
     currentSlot: number;
     nextLeaderSlot: number;
     nextLeaderIdentity: string;
+    nextLeaderRegion: string;
   }> {
     return new Promise((resolve, reject) => {
       this.client.getNextScheduledLeader(
-        {},
+        request,
         async (e: ServiceError | null, resp: NextScheduledLeaderResponse) => {
           if (e) {
             reject(e);
